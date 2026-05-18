@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liberia — Đăng Nhập</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0b0c11;--ink2:#13151e;--ink3:#1c1f2e;--line:#272b3d;
+      --gold:#c8a84b;--gold2:#e8c96a;--gold-dim:rgba(200,168,75,.1);
+      --text:#e9e7e0;--text2:#8c8fa3;--text3:#52566a;
+      --green:#4caf7d;--red:#e05c5c;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--ink);color:var(--text);
+      min-height:100vh;display:flex;
+    }
+
+    /* LEFT PANEL */
+    .left{
+      width:55%;background:var(--ink2);
+      border-right:1px solid var(--line);
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;
+      padding:60px;position:relative;overflow:hidden;
+    }
+    .left::before{
+      content:'';position:absolute;top:-100px;left:-100px;
+      width:400px;height:400px;border-radius:50%;
+      background:radial-gradient(circle,rgba(200,168,75,.07) 0%,transparent 70%);
+    }
+    .left::after{
+      content:'';position:absolute;bottom:-80px;right:-80px;
+      width:300px;height:300px;border-radius:50%;
+      background:radial-gradient(circle,rgba(200,168,75,.05) 0%,transparent 70%);
+    }
+    .brand{text-align:center;z-index:1}
+    .brand-icon{
+      width:80px;height:80px;border-radius:20px;
+      background:linear-gradient(135deg,#1e1a0e,#2e2510);
+      border:1px solid rgba(200,168,75,.4);
+      display:flex;align-items:center;justify-content:center;
+      font-size:36px;margin:0 auto 20px;
+      box-shadow:0 0 40px rgba(200,168,75,.15);
+    }
+    .brand-name{
+      font-family:'Playfair Display',serif;
+      font-size:42px;font-weight:700;
+      letter-spacing:4px;color:var(--gold);
+    }
+    .brand-sub{
+      font-size:12px;color:var(--text3);
+      letter-spacing:3px;text-transform:uppercase;margin-top:6px;
+    }
+    .brand-desc{
+      margin-top:32px;color:var(--text2);font-size:14px;
+      line-height:1.7;max-width:320px;text-align:center;
+    }
+    .features{
+      margin-top:36px;display:flex;flex-direction:column;gap:12px;
+      width:100%;max-width:300px;
+    }
+    .feat{
+      display:flex;align-items:center;gap:12px;
+      background:var(--gold-dim);border:1px solid rgba(200,168,75,.15);
+      border-radius:10px;padding:12px 16px;
+    }
+    .feat-icon{font-size:18px}
+    .feat-text{font-size:13px;color:var(--text2)}
+    .feat-text strong{color:var(--text);display:block;font-size:13.5px}
+
+    /* RIGHT PANEL */
+    .right{
+      flex:1;display:flex;align-items:center;justify-content:center;padding:40px;
+    }
+    .box{width:100%;max-width:420px}
+
+    .box-title{
+      font-family:'Playfair Display',serif;
+      font-size:26px;font-weight:700;margin-bottom:6px;
+    }
+    .box-sub{font-size:13.5px;color:var(--text2);margin-bottom:32px}
+
+    /* TABS */
+    .tabs{display:flex;gap:0;margin-bottom:28px;background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:4px}
+    .tab{
+      flex:1;padding:9px;text-align:center;border-radius:7px;
+      cursor:pointer;font-size:13px;font-weight:600;color:var(--text3);
+      transition:all .18s;
+    }
+    .tab.active{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,.2)}
+
+    /* ROLE TABS */
+    .role-tabs{display:flex;gap:8px;margin-bottom:20px}
+    .role-tab{
+      flex:1;padding:10px;border-radius:9px;text-align:center;
+      cursor:pointer;font-size:13px;font-weight:600;
+      background:var(--ink3);color:var(--text2);
+      border:1px solid var(--line);transition:all .18s;
+    }
+    .role-tab.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(200,168,75,.25)}
+
+    /* FORM */
+    .panel{display:none}.panel.active{display:block}
+    .fg{margin-bottom:14px}
+    .fg label{
+      display:block;font-size:10.5px;font-weight:700;
+      letter-spacing:1px;text-transform:uppercase;
+      color:var(--text3);margin-bottom:6px;
+    }
+    .fg input,.fg select{
+      width:100%;padding:10px 13px;
+      background:var(--ink2);border:1px solid var(--line);
+      border-radius:9px;color:var(--text);font-size:13.5px;
+      font-family:'DM Sans',sans-serif;transition:border-color .18s,box-shadow .18s;
+    }
+    .fg input:focus,.fg select:focus{
+      outline:none;border-color:rgba(200,168,75,.45);
+      box-shadow:0 0 0 3px rgba(200,168,75,.05);
+    }
+    .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .fcol2{grid-column:span 2}
+
+    .btn-main{
+      width:100%;padding:12px;border-radius:10px;border:none;
+      background:linear-gradient(135deg,var(--gold),var(--gold2));
+      color:#0b0c11;font-size:14px;font-weight:700;
+      font-family:'DM Sans',sans-serif;cursor:pointer;
+      transition:all .18s;margin-top:6px;
+      box-shadow:0 4px 16px rgba(200,168,75,.25);
+    }
+    .btn-main:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(200,168,75,.35)}
+
+    .admin-link{
+      margin-top:20px;text-align:center;
+      font-size:13px;color:var(--text3);
+    }
+    .admin-link a{
+      color:var(--gold);text-decoration:none;font-weight:600;
+    }
+    .admin-link a:hover{text-decoration:underline}
+
+    .alert{
+      padding:11px 14px;border-radius:9px;font-size:13px;
+      margin-bottom:16px;display:none;
+    }
+    .alert-err{background:rgba(224,92,92,.1);border:1px solid rgba(224,92,92,.25);color:var(--red)}
+    .alert-ok{background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.25);color:var(--green)}
+
+    .divider{
+      display:flex;align-items:center;gap:10px;
+      margin:6px 0 14px;color:var(--text3);font-size:11px;
+      letter-spacing:1px;text-transform:uppercase;
+    }
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
+  </style>
+</head>
+<body>
+
+<!-- LEFT -->
+<div class="left">
+  <div class="brand">
+    <div class="brand-icon">📚</div>
+    <div class="brand-name">LIBERIA</div>
+    <div class="brand-sub">Library Management System</div>
+    <div class="brand-desc">Hệ thống quản lý thư viện thông minh — Tra cứu, mượn sách dễ dàng</div>
+    <div class="features">
+      <div class="feat">
+        <div class="feat-icon">📖</div>
+        <div class="feat-text"><strong>Kho sách phong phú</strong>Hàng trăm đầu sách nhiều thể loại</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🎫</div>
+        <div class="feat-text"><strong>Thẻ mượn trực tuyến</strong>Đăng ký mượn sách nhanh chóng</div>
+      </div>
+      <div class="feat">
+        <div class="feat-icon">🔍</div>
+        <div class="feat-text"><strong>Tìm kiếm thông minh</strong>Tìm sách theo tên, tác giả, thể loại</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+  <div class="box">
+
+    <!-- TABS: Đăng nhập / Đăng ký -->
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('login')">Đăng Nhập</div>
+      <div class="tab" onclick="switchTab('register')">Đăng Ký</div>
+    </div>
+
+    <!-- ── ĐĂNG NHẬP ── -->
+    <div id="panel-login" class="panel active">
+      <div class="box-title">Chào mừng trở lại</div>
+      <div class="box-sub">Đăng nhập để truy cập thư viện</div>
+
+      <div class="role-tabs">
+        <div class="role-tab active" onclick="setRole('login','hoivien',this)">🎫 Hội Viên</div>
+        <div class="role-tab" onclick="setRole('login','nhanvien',this)">👤 Nhân Viên</div>
+      </div>
+
+      <div class="alert alert-err" id="login-err"></div>
+
+      <div class="fg">
+        <label>Tên Đăng Nhập</label>
+        <input id="l-tdn" placeholder="Nhập tên đăng nhập">
+      </div>
+      <div class="fg">
+        <label>Mật Khẩu</label>
+        <input id="l-mk" type="password" placeholder="Nhập mật khẩu">
+      </div>
+      <button class="btn-main" onclick="doLogin()">Đăng Nhập →</button>
+
+      <div class="admin-link">
+        Bạn là quản trị viên? <a href="/admin">Vào trang Admin</a>
+      </div>
+    </div>
+
+    <!-- ── ĐĂNG KÝ ── -->
+    <div id="panel-register" class="panel">
+      <div class="box-title">Tạo tài khoản</div>
+      <div class="box-sub">Điền thông tin để đăng ký</div>
+
+      <div class="role-tabs">
+        <div class="role-tab active" onclick="setRole('reg','hoivien',this)">🎫 Hội Viên</div>
+        <div class="role-tab" onclick="setRole('reg','nhanvien',this)">👤 Nhân Viên</div>
+      </div>
+
+      <div class="alert alert-err" id="reg-err"></div>
+      <div class="alert alert-ok" id="reg-ok"></div>
+
+      <div class="frow">
+        <div class="fg fcol2">
+          <label>Họ & Tên *</label>
+          <input id="r-hoten" placeholder="Nguyễn Văn A">
+        </div>
+        <div class="fg fcol2">
+          <label>Tên Đăng Nhập *</label>
+          <input id="r-tdn" placeholder="nguyenvana123">
+        </div>
+        <div class="fg fcol2">
+          <label>Mật Khẩu *</label>
+          <input id="r-mk" type="password" placeholder="Tối thiểu 6 ký tự">
+        </div>
+        <div class="fg">
+          <label>Ngày Sinh</label>
+          <input id="r-ns" type="date">
+        </div>
+        <div class="fg">
+          <label>Số Điện Thoại</label>
+          <input id="r-sdt" placeholder="0901 234 567">
+        </div>
+
+        <!-- Chỉ hiện khi là Hội Viên -->
+        <div class="fg fcol2" id="r-email-wrap">
+          <label>Email</label>
+          <input id="r-email" type="email" placeholder="example@email.com">
+        </div>
+
+        <!-- Chỉ hiện khi là Nhân Viên -->
+        <div class="fg" id="r-nnv-wrap" style="display:none">
+          <label>Ngày Nhận Việc</label>
+          <input id="r-nnv" type="date">
+        </div>
+        <div class="fg" id="r-cv-wrap" style="display:none">
+          <label>Chức Vụ</label>
+          <input id="r-cv" placeholder="Thủ thư...">
+        </div>
+      </div>
+
+      <button class="btn-main" onclick="doRegister()">Đăng Ký Tài Khoản →</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let loginRole = 'hoivien';
+let regRole = 'hoivien';
+
+function switchTab(t) {
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', (i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('panel-login').classList.toggle('active', t==='login');
+  document.getElementById('panel-register').classList.toggle('active', t==='register');
+}
+
+function setRole(panel, role, el) {
+  el.closest('.role-tabs').querySelectorAll('.role-tab').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  if (panel === 'login') loginRole = role;
+  else {
+    regRole = role;
+    // toggle fields
+    const isHV = role === 'hoivien';
+    document.getElementById('r-email-wrap').style.display = isHV ? '' : 'none';
+    document.getElementById('r-nnv-wrap').style.display   = isHV ? 'none' : '';
+    document.getElementById('r-cv-wrap').style.display    = isHV ? 'none' : '';
+  }
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = '⚠ ' + msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+function showOk(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = '✓ ' + msg; el.style.display = 'block';
+}
+
+async function doLogin() {
+  const tdn = document.getElementById('l-tdn').value.trim();
+  const mk  = document.getElementById('l-mk').value;
+  if (!tdn || !mk) return showErr('login-err', 'Vui lòng nhập đầy đủ thông tin!');
+
+  const r = await fetch('/api/auth/dangnhap', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ten_dangnhap: tdn, mat_khau: mk, vai_tro: loginRole })
+  });
+  const j = await r.json();
+  if (!j.success) return showErr('login-err', j.message);
+
+  // Lưu thông tin user vào sessionStorage
+  sessionStorage.setItem('user', JSON.stringify(j.user));
+  if (j.user.vai_tro === 'hoivien') window.location.href = '/hoivien';
+  else window.location.href = '/nhanvien';
+}
+
+async function doRegister() {
+  const body = {
+    ten_dangnhap:  document.getElementById('r-tdn').value.trim(),
+    mat_khau:      document.getElementById('r-mk').value,
+    ho_ten:        document.getElementById('r-hoten').value.trim(),
+    ngay_sinh:     document.getElementById('r-ns').value || null,
+    so_dien_thoai: document.getElementById('r-sdt').value,
+  };
+  if (regRole === 'hoivien') {
+    body.email = document.getElementById('r-email').value;
+  } else {
+    body.ngay_nhan_viec = document.getElementById('r-nnv').value || null;
+    body.chuc_vu        = document.getElementById('r-cv').value;
+  }
+  if (!body.ten_dangnhap || !body.mat_khau || !body.ho_ten) return showErr('reg-err', 'Vui lòng điền đầy đủ thông tin bắt buộc (*)');
+  if (body.mat_khau.length < 6) return showErr('reg-err', 'Mật khẩu phải có ít nhất 6 ký tự!');
+
+  const r = await fetch(`/api/auth/dangky/${regRole}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  const j = await r.json();
+  if (!j.success) return showErr('reg-err', j.message);
+
+  showOk('reg-ok', j.message);
+  setTimeout(() => switchTab('login'), 2000);
+}
+
+// Enter key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('panel-login').classList.contains('active')) doLogin();
+    else doRegister();
+  }
+});
+</script>
+</body>
+</html>

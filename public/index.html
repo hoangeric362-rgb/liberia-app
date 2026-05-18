@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Liberia — Hệ Thống Quản Lý Thư Viện</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink:      #0b0c11;
+      --ink2:     #13151e;
+      --ink3:     #1c1f2e;
+      --ink4:     #242840;
+      --line:     #272b3d;
+      --gold:     #c8a84b;
+      --gold2:    #e8c96a;
+      --gold-dim: rgba(200,168,75,.1);
+      --gold-glow:rgba(200,168,75,.18);
+      --text:     #e9e7e0;
+      --text2:    #8c8fa3;
+      --text3:    #52566a;
+      --green:    #4caf7d;
+      --red:      #e05c5c;
+      --blue:     #5b8dee;
+      --amber:    #f0a040;
+      --r:        12px;
+      --sb:       268px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text);min-height:100vh;overflow-x:hidden}
+
+    /* ══ SIDEBAR ══ */
+    .sidebar{
+      position:fixed;top:0;left:0;width:var(--sb);height:100vh;
+      background:var(--ink2);border-right:1px solid var(--line);
+      display:flex;flex-direction:column;z-index:100;
+    }
+    .sidebar::after{
+      content:'';position:absolute;bottom:0;left:0;right:0;height:300px;
+      background:linear-gradient(to top,rgba(200,168,75,.04),transparent);
+      pointer-events:none;
+    }
+
+    .logo-wrap{
+      padding:26px 22px 20px;border-bottom:1px solid var(--line);
+      display:flex;align-items:center;gap:13px;
+    }
+    .logo-mark{
+      width:42px;height:42px;border-radius:11px;flex-shrink:0;
+      background:linear-gradient(135deg,#1e1a0e,#2e2510);
+      border:1px solid rgba(200,168,75,.35);
+      display:flex;align-items:center;justify-content:center;
+      font-size:20px;
+      box-shadow:0 0 18px rgba(200,168,75,.12);
+    }
+    .logo-text{}
+    .logo-name{
+      font-family:'Playfair Display',serif;
+      font-size:22px;font-weight:700;letter-spacing:2.5px;
+      color:var(--gold);line-height:1;
+    }
+    .logo-sub{
+      font-size:10px;color:var(--text3);letter-spacing:2.5px;
+      text-transform:uppercase;margin-top:3px;
+    }
+
+    .nav-group{padding:18px 14px 6px}
+    .nav-label{
+      font-size:10px;font-weight:600;letter-spacing:2px;
+      text-transform:uppercase;color:var(--text3);
+      padding:0 8px;margin-bottom:4px;
+    }
+    .nav-item{
+      display:flex;align-items:center;gap:11px;
+      padding:10px 10px;border-radius:10px;
+      cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:500;
+      transition:all .18s;margin-bottom:2px;position:relative;
+      border:1px solid transparent;
+    }
+    .nav-item:hover{background:var(--ink3);color:var(--text)}
+    .nav-item.active{
+      background:var(--gold-dim);color:var(--gold);
+      border-color:rgba(200,168,75,.18);
+    }
+    .nav-item.active::before{
+      content:'';position:absolute;left:-1px;top:20%;bottom:20%;
+      width:3px;background:var(--gold);border-radius:0 3px 3px 0;
+    }
+    .ni-icon{
+      width:32px;height:32px;border-radius:8px;
+      background:var(--ink3);display:flex;align-items:center;
+      justify-content:center;font-size:14px;flex-shrink:0;transition:all .18s;
+    }
+    .nav-item.active .ni-icon{background:rgba(200,168,75,.15)}
+    .ni-count{
+      margin-left:auto;font-size:11px;font-weight:700;
+      background:var(--ink3);color:var(--text3);
+      padding:2px 8px;border-radius:20px;min-width:28px;text-align:center;
+    }
+    .nav-item.active .ni-count{background:rgba(200,168,75,.2);color:var(--gold)}
+
+    .sidebar-bottom{
+      margin-top:auto;padding:14px 18px;border-top:1px solid var(--line);
+      display:flex;align-items:center;gap:9px;
+    }
+    .conn-dot{
+      width:7px;height:7px;border-radius:50%;background:var(--green);
+      box-shadow:0 0 7px var(--green);flex-shrink:0;
+    }
+    .conn-label{font-size:11.5px;color:var(--text3)}
+
+    /* ══ MAIN ══ */
+    .main{margin-left:var(--sb);min-height:100vh}
+
+    .topbar{
+      height:62px;display:flex;align-items:center;padding:0 28px;gap:14px;
+      background:rgba(11,12,17,.85);backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--line);
+      position:sticky;top:0;z-index:50;
+    }
+    .tb-breadcrumb{
+      display:flex;align-items:center;gap:8px;
+      font-size:12px;color:var(--text3);
+    }
+    .tb-breadcrumb span{color:var(--gold);font-weight:600;font-size:13px}
+    .tb-title{
+      font-family:'Playfair Display',serif;
+      font-size:19px;font-weight:600;color:var(--text);
+    }
+    .tb-pill{
+      background:var(--gold-dim);color:var(--gold);
+      border:1px solid rgba(200,168,75,.2);
+      font-size:11.5px;font-weight:700;
+      padding:3px 11px;border-radius:20px;
+    }
+    .tb-right{margin-left:auto;display:flex;gap:9px;align-items:center}
+
+    /* ══ CONTENT ══ */
+    .content{padding:26px 28px}
+    .page{display:none}.page.active{display:block}
+
+    /* ══ SEARCH ══ */
+    .search-bar{position:relative;margin-bottom:20px}
+    .search-bar input{
+      width:100%;padding:11px 16px 11px 42px;
+      background:var(--ink2);border:1px solid var(--line);
+      border-radius:10px;color:var(--text);font-size:13.5px;
+      font-family:'DM Sans',sans-serif;transition:border-color .2s,box-shadow .2s;
+    }
+    .search-bar input:focus{outline:none;border-color:rgba(200,168,75,.4);box-shadow:0 0 0 3px rgba(200,168,75,.06)}
+    .search-bar input::placeholder{color:var(--text3)}
+    .search-bar .si{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:15px;pointer-events:none}
+
+    /* ══ BUTTONS ══ */
+    .btn{
+      padding:9px 17px;border-radius:9px;border:none;cursor:pointer;
+      font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;
+      transition:all .16s;display:inline-flex;align-items:center;gap:6px;
+    }
+    .btn-gold{
+      background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0c11;
+      box-shadow:0 2px 12px rgba(200,168,75,.2);
+    }
+    .btn-gold:hover{transform:translateY(-1px);box-shadow:0 6px 22px rgba(200,168,75,.32)}
+    .btn-ghost{background:var(--ink3);color:var(--text2);border:1px solid var(--line)}
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+    .btn-del{background:rgba(224,92,92,.1);color:var(--red);border:1px solid rgba(224,92,92,.2)}
+    .btn-del:hover{background:var(--red);color:#fff;border-color:var(--red)}
+    .btn-edit{background:rgba(91,141,238,.1);color:var(--blue);border:1px solid rgba(91,141,238,.2)}
+    .btn-edit:hover{background:var(--blue);color:#fff;border-color:var(--blue)}
+    .btn-sm{padding:5px 11px;font-size:12px;border-radius:7px}
+
+    /* ══ TABLE ══ */
+    .tcard{
+      background:var(--ink2);border:1px solid var(--line);
+      border-radius:14px;overflow:hidden;
+    }
+    table{width:100%;border-collapse:collapse}
+    thead tr{background:var(--ink3);border-bottom:1px solid var(--line)}
+    th{
+      padding:12px 16px;text-align:left;
+      font-size:10.5px;font-weight:700;letter-spacing:1.5px;
+      text-transform:uppercase;color:var(--text3);
+    }
+    td{
+      padding:13px 16px;font-size:13.5px;
+      border-bottom:1px solid rgba(39,43,61,.6);vertical-align:middle;
+    }
+    tr:last-child td{border-bottom:none}
+    tbody tr{transition:background .12s}
+    tbody tr:hover td{background:rgba(200,168,75,.025)}
+    .acts{display:flex;gap:5px}
+
+    /* ══ BADGES ══ */
+    .bdg{display:inline-flex;align-items:center;padding:3px 9px;border-radius:20px;font-size:11.5px;font-weight:600}
+    .bdg-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,.2)}
+    .bdg-green{background:rgba(76,175,125,.1);color:var(--green);border:1px solid rgba(76,175,125,.2)}
+    .bdg-red{background:rgba(224,92,92,.1);color:var(--red);border:1px solid rgba(224,92,92,.2)}
+    .bdg-blue{background:rgba(91,141,238,.1);color:var(--blue);border:1px solid rgba(91,141,238,.2)}
+    .bdg-gray{background:var(--ink3);color:var(--text2);border:1px solid var(--line)}
+    .bdg-amber{background:rgba(240,160,64,.1);color:var(--amber);border:1px solid rgba(240,160,64,.2)}
+
+    /* ══ AVATAR ══ */
+    .av{
+      width:33px;height:33px;border-radius:9px;flex-shrink:0;
+      background:linear-gradient(135deg,var(--ink3),var(--ink4));
+      border:1px solid rgba(200,168,75,.2);
+      display:inline-flex;align-items:center;justify-content:center;
+      font-size:12px;font-weight:700;color:var(--gold);
+    }
+    .cell-name{display:flex;align-items:center;gap:9px}
+    .cell-name b{font-weight:500}
+
+    /* ══ MODAL ══ */
+    .overlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(0,0,0,.72);backdrop-filter:blur(5px);
+      z-index:999;align-items:center;justify-content:center;
+    }
+    .overlay.open{display:flex}
+    .modal{
+      background:var(--ink2);border:1px solid var(--line);
+      border-radius:16px;width:560px;max-width:95vw;
+      max-height:90vh;overflow-y:auto;padding:30px;
+      animation:mIn .22s cubic-bezier(.34,1.5,.64,1);
+    }
+    @keyframes mIn{from{opacity:0;transform:scale(.93) translateY(12px)}to{opacity:1;transform:none}}
+
+    .mhead{
+      display:flex;align-items:center;gap:13px;
+      padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:22px;
+    }
+    .micon{
+      width:42px;height:42px;border-radius:11px;flex-shrink:0;
+      background:var(--gold-dim);border:1px solid rgba(200,168,75,.2);
+      display:flex;align-items:center;justify-content:center;font-size:19px;
+    }
+    .mtitle{font-family:'Playfair Display',serif;font-size:18px;font-weight:600}
+    .msub{font-size:11.5px;color:var(--text3);margin-top:2px}
+
+    .frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+    .fcol2{grid-column:span 2}
+    .fg{margin-bottom:13px}
+    .fg label{
+      display:block;font-size:10.5px;font-weight:700;
+      letter-spacing:1px;text-transform:uppercase;
+      color:var(--text3);margin-bottom:6px;
+    }
+    .fg input,.fg select,.fg textarea{
+      width:100%;padding:9px 12px;
+      background:var(--ink3);border:1px solid var(--line);
+      border-radius:9px;color:var(--text);font-size:13.5px;
+      font-family:'DM Sans',sans-serif;transition:border-color .18s,box-shadow .18s;
+    }
+    .fg input:focus,.fg select:focus,.fg textarea:focus{
+      outline:none;border-color:rgba(200,168,75,.45);
+      box-shadow:0 0 0 3px rgba(200,168,75,.05);
+    }
+    .fg select option{background:var(--ink3)}
+    .fg textarea{resize:vertical;min-height:68px}
+    .mfoot{
+      display:flex;justify-content:flex-end;gap:9px;
+      margin-top:22px;padding-top:20px;border-top:1px solid var(--line);
+    }
+
+    /* ══ TOAST ══ */
+    .toasts{position:fixed;bottom:26px;right:26px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+    .toast{
+      padding:12px 17px;border-radius:10px;font-size:13.5px;font-weight:500;
+      display:flex;align-items:center;gap:9px;min-width:270px;
+      box-shadow:0 8px 28px rgba(0,0,0,.45);
+      animation:tIn .28s cubic-bezier(.34,1.5,.64,1);
+    }
+    @keyframes tIn{from{opacity:0;transform:translateX(18px) scale(.96)}to{opacity:1;transform:none}}
+    .t-ok{background:#0d2319;border:1px solid rgba(76,175,125,.28);color:var(--green)}
+    .t-err{background:#21100f;border:1px solid rgba(224,92,92,.28);color:var(--red)}
+
+    /* ══ EMPTY ══ */
+    .empty-td{padding:60px 32px!important;text-align:center;color:var(--text3)!important}
+    .empty-td .ei{font-size:40px;margin-bottom:12px;opacity:.45}
+    .empty-td strong{display:block;color:var(--text2);font-size:14px}
+    .empty-td p{font-size:12.5px;margin-top:4px}
+
+    /* ══ DIVIDER RULE ══ */
+    .divider{
+      display:flex;align-items:center;gap:10px;
+      margin:6px 0 16px;color:var(--text3);font-size:11px;letter-spacing:1px;text-transform:uppercase;
+    }
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--line)}
+
+    /* scrollbar */
+    ::-webkit-scrollbar{width:5px;height:5px}
+    ::-webkit-scrollbar-track{background:transparent}
+    ::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<div class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">📚</div>
+    <div class="logo-text">
+      <div class="logo-name">LIBERIA</div>
+      <div class="logo-sub">Library System</div>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Quản lý</div>
+    <div class="nav-item active" onclick="navigate('nhanvien',this)">
+      <div class="ni-icon">👤</div> Nhân Viên
+      <span class="ni-count" id="c-nv">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('hoivien',this)">
+      <div class="ni-icon">🎫</div> Hội Viên
+      <span class="ni-count" id="c-hv">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('sach',this)">
+      <div class="ni-icon">📖</div> Sách
+      <span class="ni-count" id="c-s">—</span>
+    </div>
+    <div class="nav-item" onclick="navigate('themuonsach',this)">
+      <div class="ni-icon">📋</div> Thẻ Mượn Sách
+      <span class="ni-count" id="c-tm">—</span>
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="conn-dot"></div>
+    <div class="conn-label">Kết nối · localhost:3000</div>
+  </div>
+</div>
+
+<!-- ═══════ MAIN ═══════ -->
+<div class="main">
+
+  <div class="topbar">
+    <div class="tb-breadcrumb">Liberia <span style="color:var(--text3)">›</span> <span id="tb-page">Nhân Viên</span></div>
+    <div class="tb-title" id="tb-title" style="display:none"></div>
+    <span class="tb-pill" id="tb-count">0 bản ghi</span>
+    <div class="tb-right">
+      <button class="btn btn-gold" id="btn-add" onclick="handleAdd()">
+        <span style="font-size:16px;line-height:1">＋</span>
+        <span id="btn-lbl">Thêm nhân viên</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- NHÂN VIÊN -->
+    <div id="page-nhanvien" class="page active">
+      <div class="search-bar">
+        <span class="si">🔍</span>
+        <input id="nv-search" placeholder="Tìm theo tên, điện thoại, chức vụ..." oninput="ft('nv')">
+      </div>
+      <div class="tcard"><table>
+        <thead><tr><th>ID</th><th>Nhân Viên</th><th>Ngày Sinh</th><th>Điện Thoại</th><th>Nhận Việc</th><th>Chức Vụ</th><th>Thao Tác</th></tr></thead>
+        <tbody id="tb-nv"><tr><td colspan="7" class="empty-td"><div class="ei">⏳</div><strong>Đang tải...</strong></td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- HỘI VIÊN -->
+    <div id="page-hoivien" class="page">
+      <div class="search-bar">
+        <span class="si">🔍</span>
+        <input id="hv-search" placeholder="Tìm theo tên, email, điện thoại..." oninput="ft('hv')">
+      </div>
+      <div class="tcard"><table>
+        <thead><tr><th>ID</th><th>Hội Viên</th><th>Ngày Sinh</th><th>Điện Thoại</th><th>Email</th><th>Tạo Thẻ</th><th>Hết Hạn</th><th>Thao Tác</th></tr></thead>
+        <tbody id="tb-hv"><tr><td colspan="8" class="empty-td"><div class="ei">⏳</div><strong>Đang tải...</strong></td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- SÁCH -->
+    <div id="page-sach" class="page">
+      <div class="search-bar">
+        <span class="si">🔍</span>
+        <input id="s-search" placeholder="Tìm theo tên sách, tác giả, thể loại..." oninput="ft('s')">
+      </div>
+      <div class="tcard"><table>
+        <thead><tr><th>ID</th><th>Tên Sách</th><th>Thể Loại</th><th>Năm XB</th><th>Tác Giả</th><th>Ngày Nhập</th><th>Số Lượng</th><th>Thao Tác</th></tr></thead>
+        <tbody id="tb-s"><tr><td colspan="8" class="empty-td"><div class="ei">⏳</div><strong>Đang tải...</strong></td></tr></tbody>
+      </table></div>
+    </div>
+
+    <!-- THẺ MƯỢN -->
+    <div id="page-themuonsach" class="page">
+      <div class="search-bar">
+        <span class="si">🔍</span>
+        <input id="tm-search" placeholder="Tìm theo hội viên, sách, trạng thái..." oninput="ft('tm')">
+      </div>
+      <div class="tcard"><table>
+        <thead><tr><th>STT</th><th>Hội Viên</th><th>Sách Mượn</th><th>Ngày Mượn</th><th>Hạn Trả</th><th>Trạng Thái</th><th>Ghi Chú</th><th>Thao Tác</th></tr></thead>
+        <tbody id="tb-tm"><tr><td colspan="8" class="empty-td"><div class="ei">⏳</div><strong>Đang tải...</strong></td></tr></tbody>
+      </table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Nhân Viên -->
+<div class="overlay" id="m-nv">
+  <div class="modal">
+    <div class="mhead">
+      <div class="micon">👤</div>
+      <div><div class="mtitle" id="mt-nv">Thêm Nhân Viên</div><div class="msub">Thông tin nhân sự thư viện</div></div>
+    </div>
+    <input type="hidden" id="nv-id">
+    <div class="frow">
+      <div class="fg fcol2"><label>Họ & Tên *</label><input id="nv-ho_ten" placeholder="Nguyễn Văn A"></div>
+      <div class="fg"><label>Ngày Sinh</label><input type="date" id="nv-ngay_sinh"></div>
+      <div class="fg"><label>Số Điện Thoại</label><input id="nv-so_dien_thoai" placeholder="0901 234 567"></div>
+      <div class="fg"><label>Ngày Nhận Việc</label><input type="date" id="nv-ngay_nhan_viec"></div>
+      <div class="fg"><label>Chức Vụ</label><input id="nv-chuc_vu" placeholder="Thủ thư, Quản lý..."></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="cm('nv')">Hủy</button>
+      <button class="btn btn-gold" onclick="saveNV()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Hội Viên -->
+<div class="overlay" id="m-hv">
+  <div class="modal">
+    <div class="mhead">
+      <div class="micon">🎫</div>
+      <div><div class="mtitle" id="mt-hv">Thêm Hội Viên</div><div class="msub">Thành viên thư viện</div></div>
+    </div>
+    <input type="hidden" id="hv-id">
+    <div class="frow">
+      <div class="fg fcol2"><label>Họ & Tên *</label><input id="hv-ho_ten" placeholder="Trần Thị B"></div>
+      <div class="fg"><label>Ngày Sinh</label><input type="date" id="hv-ngay_sinh"></div>
+      <div class="fg"><label>Số Điện Thoại</label><input id="hv-so_dien_thoai" placeholder="0901 234 567"></div>
+      <div class="fg fcol2"><label>Email</label><input type="email" id="hv-email" placeholder="example@email.com"></div>
+      <div class="fg"><label>Ngày Tạo Thẻ</label><input type="date" id="hv-ngay_tao_the"></div>
+      <div class="fg"><label>Ngày Hết Hạn</label><input type="date" id="hv-ngay_het_han"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="cm('hv')">Hủy</button>
+      <button class="btn btn-gold" onclick="saveHV()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sách -->
+<div class="overlay" id="m-s">
+  <div class="modal">
+    <div class="mhead">
+      <div class="micon">📖</div>
+      <div><div class="mtitle" id="mt-s">Thêm Sách</div><div class="msub">Đầu sách mới trong kho</div></div>
+    </div>
+    <input type="hidden" id="s-id">
+    <div class="frow">
+      <div class="fg fcol2"><label>Tên Sách *</label><input id="s-ten_sach" placeholder="Tên đầy đủ của sách"></div>
+      <div class="fg"><label>Thể Loại</label><input id="s-the_loai" placeholder="Văn học, Kỹ năng..."></div>
+      <div class="fg"><label>Năm Xuất Bản</label><input type="number" id="s-nam_xuat_ban" placeholder="2024"></div>
+      <div class="fg"><label>Tên Tác Giả</label><input id="s-ten_tac_gia" placeholder="Tên tác giả"></div>
+      <div class="fg"><label>Ngày Nhập Sách</label><input type="date" id="s-ngay_nhap_sach"></div>
+      <div class="fg fcol2"><label>Số Lượng</label><input type="number" id="s-so_luong" placeholder="0" min="0"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="cm('s')">Hủy</button>
+      <button class="btn btn-gold" onclick="saveS()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Thẻ Mượn -->
+<div class="overlay" id="m-tm">
+  <div class="modal">
+    <div class="mhead">
+      <div class="micon">📋</div>
+      <div><div class="mtitle" id="mt-tm">Tạo Thẻ Mượn</div><div class="msub">Lập phiếu mượn sách mới</div></div>
+    </div>
+    <input type="hidden" id="tm-id">
+    <div class="divider">Thông tin mượn</div>
+    <div class="frow">
+      <div class="fg"><label>Hội Viên</label>
+        <select id="tm-id_hoivien" onchange="fillHV()"><option value="">— Chọn hội viên —</option></select>
+      </div>
+      <div class="fg"><label>Sách Mượn</label>
+        <select id="tm-id_sach"><option value="">— Chọn sách —</option></select>
+      </div>
+      <div class="fg"><label>Số ĐT Hội Viên</label><input id="tm-sdt" placeholder="Tự điền"></div>
+      <div class="fg"><label>Email Hội Viên</label><input id="tm-email" placeholder="Tự điền"></div>
+      <div class="fg"><label>Ngày Mượn</label><input type="date" id="tm-ngay_muon"></div>
+      <div class="fg"><label>Hạn Trả</label><input type="date" id="tm-han_tra"></div>
+      <div class="fg"><label>Trạng Thái</label>
+        <select id="tm-tt"><option>Đang mượn</option><option>Đã trả</option><option>Quá hạn</option></select>
+      </div>
+      <div class="fg"><label>Ghi Chú</label><input id="tm-ghi_chu" placeholder="Ghi chú..."></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="cm('tm')">Hủy</button>
+      <button class="btn btn-gold" onclick="saveTM()">💾 Lưu</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const API='http://localhost:3000/api';
+let cache={nv:[],hv:[],s:[],tm:[]};
+let hvList=[],sachList=[];
+let curPage='nhanvien';
+
+const CFG={
+  nhanvien:{title:'Nhân Viên',lbl:'Thêm nhân viên',cols:7},
+  hoivien: {title:'Hội Viên', lbl:'Thêm hội viên', cols:8},
+  sach:    {title:'Sách',     lbl:'Thêm sách',     cols:8},
+  themuonsach:{title:'Thẻ Mượn Sách',lbl:'Tạo thẻ mượn',cols:8}
+};
+
+function navigate(p,el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  el.classList.add('active');
+  curPage=p;
+  const c=CFG[p];
+  document.getElementById('tb-page').textContent=c.title;
+  document.getElementById('btn-lbl').textContent=c.lbl;
+  loadPage(p);
+}
+function loadPage(p){
+  if(p==='nhanvien')loadNV();
+  if(p==='hoivien')loadHV();
+  if(p==='sach')loadS();
+  if(p==='themuonsach')loadTM();
+}
+function handleAdd(){
+  const m={nhanvien:'nv',hoivien:'hv',sach:'s',themuonsach:'tm'};
+  om(m[curPage]);
+}
+function setCount(k,n){
+  const m={nv:'c-nv',hv:'c-hv',s:'c-s',tm:'c-tm'};
+  document.getElementById(m[k]).textContent=n;
+  const pg={nv:'nhanvien',hv:'hoivien',s:'sach',tm:'themuonsach'};
+  if(curPage===pg[k]) document.getElementById('tb-count').textContent=n+' bản ghi';
+}
+
+// toast
+function toast(msg,type='ok'){
+  const t=document.createElement('div');
+  t.className=`toast t-${type}`;
+  t.innerHTML=(type==='ok'?'✓':'✗')+'  '+msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(()=>{t.style.cssText='opacity:0;transform:translateX(16px);transition:.25s';setTimeout(()=>t.remove(),260);},3000);
+}
+
+// modal
+function om(k,d=null){
+  if(k==='tm')loadSelects();
+  clrM(k);if(d)fillM(k,d);
+  document.getElementById('m-'+k).classList.add('open');
+}
+function cm(k){document.getElementById('m-'+k).classList.remove('open')}
+function clrM(k){
+  const titles={nv:'Thêm Nhân Viên',hv:'Thêm Hội Viên',s:'Thêm Sách',tm:'Tạo Thẻ Mượn'};
+  document.getElementById('mt-'+k).textContent=titles[k];
+  document.getElementById(k+'-id').value='';
+  document.querySelectorAll(`#m-${k} input:not([type=hidden]),#m-${k} select,#m-${k} textarea`).forEach(i=>i.value='');
+  if(k==='tm'){document.getElementById('tm-ngay_muon').value=new Date().toISOString().split('T')[0];document.getElementById('tm-tt').value='Đang mượn';}
+}
+function fillM(k,d){
+  const et={nv:'Sửa Nhân Viên',hv:'Sửa Hội Viên',s:'Sửa Sách',tm:'Sửa Thẻ Mượn'};
+  document.getElementById('mt-'+k).textContent=et[k];
+  const s=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||''};
+  const fd=x=>{if(!x)return'';try{return new Date(x).toISOString().split('T')[0]}catch{return''}};
+  if(k==='nv'){s('nv-id',d.id_nhanvien);s('nv-ho_ten',d.ho_ten);s('nv-ngay_sinh',fd(d.ngay_sinh));s('nv-so_dien_thoai',d.so_dien_thoai);s('nv-ngay_nhan_viec',fd(d.ngay_nhan_viec));s('nv-chuc_vu',d.chuc_vu);}
+  else if(k==='hv'){s('hv-id',d.id_hoivien);s('hv-ho_ten',d.ho_ten);s('hv-ngay_sinh',fd(d.ngay_sinh));s('hv-so_dien_thoai',d.so_dien_thoai);s('hv-email',d.email);s('hv-ngay_tao_the',fd(d.ngay_tao_the));s('hv-ngay_het_han',fd(d.ngay_het_han));}
+  else if(k==='s'){s('s-id',d.id_sach);s('s-ten_sach',d.ten_sach);s('s-the_loai',d.the_loai);s('s-nam_xuat_ban',d.nam_xuat_ban);s('s-ten_tac_gia',d.ten_tac_gia);s('s-ngay_nhap_sach',fd(d.ngay_nhap_sach));s('s-so_luong',d.so_luong);}
+  else if(k==='tm'){s('tm-id',d.tm_stt);s('tm-id_hoivien',d.id_hoivien);s('tm-id_sach',d.id_sach);s('tm-sdt',d.tm_so_dien_thoai);s('tm-email',d.tm_email);s('tm-ngay_muon',fd(d.tm_ngay_muon));s('tm-han_tra',fd(d.tm_ngay_den_han_tra));s('tm-tt',d.tm_trang_thai);s('tm-ghi_chu',d.tm_ghi_chu);}
+}
+
+const fmtD=d=>{if(!d)return'<span style="color:var(--text3)">—</span>';return new Date(d).toLocaleDateString('vi-VN')};
+const dash=v=>v||'<span style="color:var(--text3)">—</span>';
+const ini=n=>{if(!n)return'?';return n.trim().split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase().slice(0,2)};
+
+function ft(k){
+  const q=document.getElementById(k+'-search').value.toLowerCase();
+  render(k,cache[k].filter(r=>JSON.stringify(r).toLowerCase().includes(q)));
+}
+
+function render(k,data){
+  const empty=(cols,msg)=>`<tr><td colspan="${cols}" class="empty-td"><div class="ei">📭</div><strong>${msg}</strong><p>Bấm nút thêm mới để bắt đầu</p></td></tr>`;
+  if(k==='nv'){
+    const b=document.getElementById('tb-nv');
+    if(!data.length){b.innerHTML=empty(7,'Chưa có nhân viên nào');return}
+    b.innerHTML=data.map(r=>`<tr>
+      <td><span class="bdg bdg-gray">#${r.id_nhanvien}</span></td>
+      <td><div class="cell-name"><div class="av">${ini(r.ho_ten)}</div><b>${r.ho_ten||'—'}</b></div></td>
+      <td>${fmtD(r.ngay_sinh)}</td><td>${dash(r.so_dien_thoai)}</td>
+      <td>${fmtD(r.ngay_nhan_viec)}</td>
+      <td>${r.chuc_vu?`<span class="bdg bdg-gold">${r.chuc_vu}</span>`:dash('')}</td>
+      <td><div class="acts">
+        <button class="btn btn-edit btn-sm" onclick='om("nv",${JSON.stringify(r).replace(/'/g,"&#39;")})'>✏️</button>
+        <button class="btn btn-del btn-sm" onclick="del('nhanvien','id_nhanvien',${r.id_nhanvien},'nv')">🗑️</button>
+      </div></td></tr>`).join('');
+  }else if(k==='hv'){
+    const b=document.getElementById('tb-hv');
+    if(!data.length){b.innerHTML=empty(8,'Chưa có hội viên nào');return}
+    b.innerHTML=data.map(r=>{
+      const exp=r.ngay_het_han&&new Date(r.ngay_het_han)<new Date();
+      return`<tr>
+        <td><span class="bdg bdg-gray">#${r.id_hoivien}</span></td>
+        <td><div class="cell-name"><div class="av">${ini(r.ho_ten)}</div><b>${r.ho_ten||'—'}</b></div></td>
+        <td>${fmtD(r.ngay_sinh)}</td><td>${dash(r.so_dien_thoai)}</td>
+        <td>${dash(r.email)}</td><td>${fmtD(r.ngay_tao_the)}</td>
+        <td>${r.ngay_het_han?`<span class="bdg ${exp?'bdg-red':'bdg-green'}">${fmtD(r.ngay_het_han)}</span>`:dash('')}</td>
+        <td><div class="acts">
+          <button class="btn btn-edit btn-sm" onclick='om("hv",${JSON.stringify(r).replace(/'/g,"&#39;")})'>✏️</button>
+          <button class="btn btn-del btn-sm" onclick="del('hoivien','id_hoivien',${r.id_hoivien},'hv')">🗑️</button>
+        </div></td></tr>`;
+    }).join('');
+  }else if(k==='s'){
+    const b=document.getElementById('tb-s');
+    if(!data.length){b.innerHTML=empty(8,'Chưa có sách nào trong kho');return}
+    b.innerHTML=data.map(r=>`<tr>
+      <td><span class="bdg bdg-gray">#${r.id_sach}</span></td>
+      <td><div class="cell-name"><div class="av" style="font-size:15px">📖</div><b>${r.ten_sach||'—'}</b></div></td>
+      <td>${r.the_loai?`<span class="bdg bdg-blue">${r.the_loai}</span>`:dash('')}</td>
+      <td>${dash(r.nam_xuat_ban)}</td><td>${dash(r.ten_tac_gia)}</td>
+      <td>${fmtD(r.ngay_nhap_sach)}</td>
+      <td><span class="bdg ${r.so_luong>0?'bdg-green':'bdg-red'}">${r.so_luong||0} quyển</span></td>
+      <td><div class="acts">
+        <button class="btn btn-edit btn-sm" onclick='om("s",${JSON.stringify(r).replace(/'/g,"&#39;")})'>✏️</button>
+        <button class="btn btn-del btn-sm" onclick="del('sach','id_sach',${r.id_sach},'s')">🗑️</button>
+      </div></td></tr>`).join('');
+  }else if(k==='tm'){
+    const b=document.getElementById('tb-tm');
+    if(!data.length){b.innerHTML=empty(8,'Chưa có thẻ mượn nào');return}
+    b.innerHTML=data.map(r=>{
+      const st=r.tm_trang_thai;
+      const sc=st==='Đã trả'?'bdg-green':st==='Quá hạn'?'bdg-red':'bdg-amber';
+      return`<tr>
+        <td><span class="bdg bdg-gray">#${r.tm_stt}</span></td>
+        <td><div class="cell-name"><div class="av">${ini(r.ten_hoivien_full||r.tm_ten_hoivien)}</div>${r.ten_hoivien_full||r.tm_ten_hoivien||'—'}</div></td>
+        <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.ten_sach_full||r.tm_ten_sach||dash('')}</td>
+        <td>${fmtD(r.tm_ngay_muon)}</td><td>${fmtD(r.tm_ngay_den_han_tra)}</td>
+        <td><span class="bdg ${sc}">${st||'—'}</span></td>
+        <td style="max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${dash(r.tm_ghi_chu)}</td>
+        <td><div class="acts">
+          <button class="btn btn-edit btn-sm" onclick='om("tm",${JSON.stringify(r).replace(/'/g,"&#39;")})'>✏️</button>
+          <button class="btn btn-del btn-sm" onclick="del('themuonsach','tm_stt',${r.tm_stt},'tm')">🗑️</button>
+        </div></td></tr>`;
+    }).join('');
+  }
+}
+
+// LOAD
+async function loadNV(){try{const r=await fetch(`${API}/nhanvien`);const j=await r.json();cache.nv=j.data||[];setCount('nv',cache.nv.length);render('nv',cache.nv);}catch{document.getElementById('tb-nv').innerHTML='<tr><td colspan="7" class="empty-td"><div class="ei">❌</div><strong>Không kết nối được server</strong></td></tr>';}}
+async function loadHV(){try{const r=await fetch(`${API}/hoivien`);const j=await r.json();cache.hv=j.data||[];hvList=cache.hv;setCount('hv',cache.hv.length);render('hv',cache.hv);}catch{document.getElementById('tb-hv').innerHTML='<tr><td colspan="8" class="empty-td"><div class="ei">❌</div><strong>Không kết nối được server</strong></td></tr>';}}
+async function loadS(){try{const r=await fetch(`${API}/sach`);const j=await r.json();cache.s=j.data||[];sachList=cache.s;setCount('s',cache.s.length);render('s',cache.s);}catch{document.getElementById('tb-s').innerHTML='<tr><td colspan="8" class="empty-td"><div class="ei">❌</div><strong>Không kết nối được server</strong></td></tr>';}}
+async function loadTM(){try{const r=await fetch(`${API}/themuonsach`);const j=await r.json();cache.tm=j.data||[];setCount('tm',cache.tm.length);render('tm',cache.tm);}catch{document.getElementById('tb-tm').innerHTML='<tr><td colspan="8" class="empty-td"><div class="ei">❌</div><strong>Không kết nối được server</strong></td></tr>';}}
+
+// SAVE
+async function saveNV(){
+  const id=document.getElementById('nv-id').value;
+  const body={ho_ten:document.getElementById('nv-ho_ten').value,ngay_sinh:document.getElementById('nv-ngay_sinh').value||null,so_dien_thoai:document.getElementById('nv-so_dien_thoai').value,ngay_nhan_viec:document.getElementById('nv-ngay_nhan_viec').value||null,chuc_vu:document.getElementById('nv-chuc_vu').value};
+  if(!body.ho_ten)return toast('Vui lòng nhập họ tên!','err');
+  const r=await fetch(id?`${API}/nhanvien/${id}`:`${API}/nhanvien`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();if(j.success){toast(id?'Cập nhật thành công!':'Thêm thành công!');cm('nv');loadNV();}else toast(j.message,'err');
+}
+async function saveHV(){
+  const id=document.getElementById('hv-id').value;
+  const body={ho_ten:document.getElementById('hv-ho_ten').value,ngay_sinh:document.getElementById('hv-ngay_sinh').value||null,so_dien_thoai:document.getElementById('hv-so_dien_thoai').value,email:document.getElementById('hv-email').value,ngay_tao_the:document.getElementById('hv-ngay_tao_the').value||null,ngay_het_han:document.getElementById('hv-ngay_het_han').value||null};
+  if(!body.ho_ten)return toast('Vui lòng nhập họ tên!','err');
+  const r=await fetch(id?`${API}/hoivien/${id}`:`${API}/hoivien`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();if(j.success){toast(id?'Cập nhật thành công!':'Thêm thành công!');cm('hv');loadHV();}else toast(j.message,'err');
+}
+async function saveS(){
+  const id=document.getElementById('s-id').value;
+  const body={ten_sach:document.getElementById('s-ten_sach').value,the_loai:document.getElementById('s-the_loai').value,nam_xuat_ban:document.getElementById('s-nam_xuat_ban').value||null,ten_tac_gia:document.getElementById('s-ten_tac_gia').value,ngay_nhap_sach:document.getElementById('s-ngay_nhap_sach').value||null,so_luong:parseInt(document.getElementById('s-so_luong').value)||0};
+  if(!body.ten_sach)return toast('Vui lòng nhập tên sách!','err');
+  const r=await fetch(id?`${API}/sach/${id}`:`${API}/sach`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();if(j.success){toast(id?'Cập nhật thành công!':'Thêm thành công!');cm('s');loadS();}else toast(j.message,'err');
+}
+async function loadSelects(){
+  if(!hvList.length){const r=await fetch(`${API}/hoivien`);const j=await r.json();hvList=j.data||[];}
+  if(!sachList.length){const r=await fetch(`${API}/sach`);const j=await r.json();sachList=j.data||[];}
+  document.getElementById('tm-id_hoivien').innerHTML='<option value="">— Chọn hội viên —</option>'+hvList.map(h=>`<option value="${h.id_hoivien}">${h.ho_ten}</option>`).join('');
+  document.getElementById('tm-id_sach').innerHTML='<option value="">— Chọn sách —</option>'+sachList.map(s=>`<option value="${s.id_sach}">${s.ten_sach}</option>`).join('');
+}
+function fillHV(){
+  const id=document.getElementById('tm-id_hoivien').value;
+  const hv=hvList.find(h=>h.id_hoivien==id);
+  if(hv){document.getElementById('tm-sdt').value=hv.so_dien_thoai||'';document.getElementById('tm-email').value=hv.email||'';}
+}
+async function saveTM(){
+  const id=document.getElementById('tm-id').value;
+  const ihv=document.getElementById('tm-id_hoivien').value;
+  const is=document.getElementById('tm-id_sach').value;
+  const hv=hvList.find(h=>h.id_hoivien==ihv);
+  const s=sachList.find(x=>x.id_sach==is);
+  const body={tm_ten_hoivien:hv?hv.ho_ten:'',id_hoivien:ihv||null,tm_so_dien_thoai:document.getElementById('tm-sdt').value,tm_email:document.getElementById('tm-email').value,id_sach:is||null,tm_ten_sach:s?s.ten_sach:'',tm_ngay_muon:document.getElementById('tm-ngay_muon').value||null,tm_ngay_den_han_tra:document.getElementById('tm-han_tra').value||null,tm_ghi_chu:document.getElementById('tm-ghi_chu').value,tm_trang_thai:document.getElementById('tm-tt').value};
+  const r=await fetch(id?`${API}/themuonsach/${id}`:`${API}/themuonsach`,{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  const j=await r.json();if(j.success){toast(id?'Cập nhật thành công!':'Tạo thẻ mượn thành công!');cm('tm');loadTM();}else toast(j.message,'err');
+}
+async function del(ep,idf,id,k){
+  if(!confirm('Xác nhận xóa bản ghi này?'))return;
+  try{const r=await fetch(`${API}/${ep}/${id}`,{method:'DELETE'});const j=await r.json();
+    if(j.success){toast('Đã xóa thành công!');loadPage(curPage);}else toast(j.message,'err');
+  }catch{toast('Lỗi khi xóa!','err');}
+}
+
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+// Init
+loadNV();
+fetch(`${API}/hoivien`).then(r=>r.json()).then(j=>{hvList=j.data||[];setCount('hv',hvList.length)});
+fetch(`${API}/sach`).then(r=>r.json()).then(j=>{sachList=j.data||[];setCount('s',sachList.length)});
+fetch(`${API}/themuonsach`).then(r=>r.json()).then(j=>setCount('tm',(j.data||[]).length));
+</script>
+</body>
+</html>

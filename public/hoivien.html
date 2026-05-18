@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liberia — Hội Viên</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --ink:#0b0c11;--ink2:#13151e;--ink3:#1c1f2e;--line:#272b3d;
+      --gold:#c8a84b;--gold2:#e8c96a;--gold-dim:rgba(200,168,75,.1);
+      --text:#e9e7e0;--text2:#8c8fa3;--text3:#52566a;
+      --green:#4caf7d;--red:#e05c5c;--amber:#f0a040;--blue:#5b8dee;
+      --sb:255px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'DM Sans',sans-serif;background:var(--ink);color:var(--text);min-height:100vh}
+
+    .sidebar{position:fixed;top:0;left:0;width:var(--sb);height:100vh;background:var(--ink2);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:100}
+    .logo-wrap{padding:22px 20px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:11px}
+    .logo-mark{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#1e1a0e,#2e2510);border:1px solid rgba(200,168,75,.35);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .logo-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;letter-spacing:2px;color:var(--gold)}
+    .logo-sub{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:2px}
+
+    .user-card{margin:14px 12px;padding:13px 14px;background:var(--gold-dim);border:1px solid rgba(200,168,75,.18);border-radius:11px}
+    .uc-role{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+    .uc-name{font-size:14px;font-weight:600}
+    .uc-exp{font-size:11.5px;margin-top:3px}
+    .exp-ok{color:var(--green)}.exp-no{color:var(--red)}
+
+    .nav-label{padding:14px 18px 5px;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+    .nav-item{margin:2px 10px;padding:10px 12px;border-radius:9px;cursor:pointer;display:flex;align-items:center;gap:10px;color:var(--text2);font-size:13.5px;font-weight:500;transition:all .18s;border:1px solid transparent}
+    .nav-item:hover{background:var(--ink3);color:var(--text)}
+    .nav-item.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(200,168,75,.18)}
+    .ni{width:30px;height:30px;border-radius:8px;background:var(--ink3);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+    .nav-item.active .ni{background:rgba(200,168,75,.15)}
+
+    .sidebar-bottom{margin-top:auto;padding:14px 16px;border-top:1px solid var(--line)}
+    .btn-logout{width:100%;padding:9px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text3);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px}
+    .btn-logout:hover{border-color:var(--red);color:var(--red)}
+
+    .main{margin-left:var(--sb)}
+    .topbar{height:60px;display:flex;align-items:center;padding:0 26px;gap:12px;background:rgba(11,12,17,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+    .tb-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:600}
+    .tb-pill{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,.2);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px}
+    .tb-right{margin-left:auto}
+
+    .content{padding:24px 26px}
+    .page{display:none}.page.active{display:block}
+
+    /* STATS */
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+    .stat-card{background:var(--ink2);border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:flex;align-items:center;gap:14px}
+    .stat-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    .si-gold{background:var(--gold-dim);border:1px solid rgba(200,168,75,.2)}
+    .si-green{background:rgba(76,175,125,.1);border:1px solid rgba(76,175,125,.2)}
+    .si-blue{background:rgba(91,141,238,.1);border:1px solid rgba(91,141,238,.2)}
+    .stat-num{font-size:22px;font-weight:700;line-height:1}
+    .stat-lbl{font-size:12px;color:var(--text3);margin-top:3px}
+
+    /* BOOK GRID */
+    .search-bar{position:relative;margin-bottom:20px}
+    .search-bar input{width:100%;padding:11px 16px 11px 42px;background:var(--ink2);border:1px solid var(--line);border-radius:10px;color:var(--text);font-size:13.5px;font-family:'DM Sans',sans-serif;transition:border-color .18s}
+    .search-bar input:focus{outline:none;border-color:rgba(200,168,75,.4)}
+    .search-bar input::placeholder{color:var(--text3)}
+    .si{position:absolute;left:14px;top:50%;transform:translateY(-50%);pointer-events:none}
+
+    .filter-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+    .filter-btn{padding:6px 14px;border-radius:20px;border:1px solid var(--line);background:var(--ink2);color:var(--text2);font-size:12.5px;font-weight:600;cursor:pointer;transition:all .16s;font-family:'DM Sans',sans-serif}
+    .filter-btn:hover{border-color:var(--gold);color:var(--gold)}
+    .filter-btn.active{background:var(--gold-dim);color:var(--gold);border-color:rgba(200,168,75,.3)}
+
+    .book-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:15px}
+    .book-card{background:var(--ink2);border:1px solid var(--line);border-radius:13px;padding:18px;transition:all .2s}
+    .book-card:hover{border-color:rgba(200,168,75,.3);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    .bc-icon{font-size:30px;margin-bottom:11px}
+    .bc-title{font-size:13.5px;font-weight:600;margin-bottom:4px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+    .bc-author{font-size:12px;color:var(--text3);margin-bottom:10px}
+    .bc-meta{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+    .bdg{display:inline-flex;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+    .bdg-gold{background:var(--gold-dim);color:var(--gold);border:1px solid rgba(200,168,75,.2)}
+    .bdg-green{background:rgba(76,175,125,.1);color:var(--green);border:1px solid rgba(76,175,125,.2)}
+    .bdg-red{background:rgba(224,92,92,.1);color:var(--red);border:1px solid rgba(224,92,92,.2)}
+    .bdg-amber{background:rgba(240,160,64,.1);color:var(--amber);border:1px solid rgba(240,160,64,.2)}
+    .bdg-gray{background:var(--ink3);color:var(--text2);border:1px solid var(--line)}
+    .bc-btn{width:100%;padding:8px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0c11;font-size:12.5px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .16s}
+    .bc-btn:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,168,75,.3)}
+    .bc-btn:disabled{background:var(--ink3);color:var(--text3);cursor:not-allowed;transform:none;box-shadow:none}
+
+    /* TABLE */
+    .tcard{background:var(--ink2);border:1px solid var(--line);border-radius:13px;overflow:hidden}
+    table{width:100%;border-collapse:collapse}
+    thead tr{background:var(--ink3);border-bottom:1px solid var(--line)}
+    th{padding:11px 15px;text-align:left;font-size:10.5px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3)}
+    td{padding:12px 15px;font-size:13.5px;border-bottom:1px solid rgba(39,43,61,.6);vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tbody tr:hover td{background:rgba(200,168,75,.025)}
+
+    /* PROFILE */
+    .profile-card{background:var(--ink2);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:520px}
+    .profile-avatar{width:70px;height:70px;border-radius:16px;background:linear-gradient(135deg,var(--ink3),var(--ink4,#242840));border:2px solid rgba(200,168,75,.3);display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:var(--gold);margin-bottom:18px}
+    .profile-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin-bottom:4px}
+    .profile-role{font-size:12px;color:var(--gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:20px}
+    .profile-fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .pf{background:var(--ink3);border-radius:9px;padding:12px 14px}
+    .pf-label{font-size:10.5px;color:var(--text3);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+    .pf-value{font-size:13.5px;color:var(--text)}
+
+    /* MODAL */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);z-index:999;align-items:center;justify-content:center}
+    .overlay.open{display:flex}
+    .modal{background:var(--ink2);border:1px solid var(--line);border-radius:16px;width:480px;max-width:95vw;padding:28px;animation:mIn .22s cubic-bezier(.34,1.5,.64,1)}
+    @keyframes mIn{from{opacity:0;transform:scale(.93) translateY(12px)}to{opacity:1;transform:none}}
+    .mhead{display:flex;align-items:center;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:20px}
+    .micon{width:40px;height:40px;border-radius:10px;background:var(--gold-dim);border:1px solid rgba(200,168,75,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+    .mtitle{font-family:'Playfair Display',serif;font-size:17px;font-weight:600}
+    .msub{font-size:11.5px;color:var(--text3);margin-top:2px}
+    .fg{margin-bottom:13px}
+    .fg label{display:block;font-size:10.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+    .fg input,.fg select{width:100%;padding:9px 12px;background:var(--ink3);border:1px solid var(--line);border-radius:9px;color:var(--text);font-size:13.5px;font-family:'DM Sans',sans-serif;transition:border-color .18s}
+    .fg input:focus,.fg select:focus{outline:none;border-color:rgba(200,168,75,.45)}
+    .fg .ro{background:var(--ink);color:var(--text2)}
+    .fg select option{background:var(--ink3)}
+    .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .mfoot{display:flex;justify-content:flex-end;gap:9px;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+    .btn{padding:9px 17px;border-radius:9px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .16s;display:inline-flex;align-items:center;gap:6px}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#0b0c11}
+    .btn-gold:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(200,168,75,.3)}
+    .btn-ghost{background:var(--ink3);color:var(--text2);border:1px solid var(--line)}
+    .btn-ghost:hover{border-color:var(--gold);color:var(--gold)}
+
+    .toasts{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:7px}
+    .toast{padding:11px 16px;border-radius:10px;font-size:13.5px;font-weight:500;display:flex;align-items:center;gap:8px;min-width:260px;box-shadow:0 6px 24px rgba(0,0,0,.4);animation:tIn .25s ease}
+    @keyframes tIn{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+    .t-ok{background:#0d2319;border:1px solid rgba(76,175,125,.28);color:var(--green)}
+    .t-err{background:#21100f;border:1px solid rgba(224,92,92,.28);color:var(--red)}
+    .empty-box{padding:52px;text-align:center;color:var(--text3)}
+    .empty-box .ei{font-size:38px;margin-bottom:10px;opacity:.4}
+    ::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--line);border-radius:3px}
+  </style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo-mark">📚</div>
+    <div><div class="logo-name">LIBERIA</div><div class="logo-sub">Hội Viên</div></div>
+  </div>
+  <div class="user-card">
+    <div class="uc-role">🎫 Hội Viên</div>
+    <div class="uc-name" id="uc-name">...</div>
+    <div class="uc-exp" id="uc-exp"></div>
+  </div>
+  <div class="nav-label">Menu</div>
+  <div class="nav-item active" onclick="nav('home',this)"><div class="ni">🏠</div> Trang Chủ</div>
+  <div class="nav-item" onclick="nav('sach',this)"><div class="ni">📖</div> Kho Sách</div>
+  <div class="nav-item" onclick="nav('muon',this)"><div class="ni">📋</div> Thẻ Mượn Của Tôi</div>
+  <div class="nav-item" onclick="nav('profile',this)"><div class="ni">👤</div> Hồ Sơ Cá Nhân</div>
+  <div class="sidebar-bottom">
+    <button class="btn-logout" onclick="logout()">🚪 Đăng Xuất</button>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-title" id="tb-title">Trang Chủ</div>
+    <span class="tb-pill" id="tb-pill">Hội Viên</span>
+    <div class="tb-right"></div>
+  </div>
+  <div class="content">
+
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-icon si-gold">📚</div>
+          <div><div class="stat-num" id="st-sach">0</div><div class="stat-lbl">Tổng đầu sách</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-green">📋</div>
+          <div><div class="stat-num" id="st-dangmuon">0</div><div class="stat-lbl">Đang mượn</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon si-blue">✅</div>
+          <div><div class="stat-num" id="st-datra">0</div><div class="stat-lbl">Đã trả</div></div>
+        </div>
+      </div>
+      <div style="background:var(--ink2);border:1px solid var(--line);border-radius:13px;padding:24px;margin-bottom:16px">
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:8px">Chào mừng đến với Liberia 👋</div>
+        <div style="color:var(--text2);font-size:14px;line-height:1.7">Khám phá kho sách phong phú, đăng ký mượn sách yêu thích và theo dõi thẻ mượn của bạn ngay tại đây.</div>
+        <button class="btn btn-gold" style="margin-top:16px" onclick="nav('sach',document.querySelectorAll('.nav-item')[1])">📖 Khám phá kho sách</button>
+      </div>
+    </div>
+
+    <!-- SÁCH -->
+    <div id="page-sach" class="page">
+      <div class="search-bar">
+        <span class="si">🔍</span>
+        <input id="s-search" placeholder="Tìm theo tên sách, tác giả, thể loại..." oninput="filterSach()">
+      </div>
+      <div class="filter-row" id="filter-row"></div>
+      <div id="book-grid" class="book-grid"></div>
+    </div>
+
+    <!-- THẺ MƯỢN -->
+    <div id="page-muon" class="page">
+      <div class="tcard">
+        <table>
+          <thead><tr><th>STT</th><th>Tên Sách</th><th>Ngày Mượn</th><th>Hạn Trả</th><th>Trạng Thái</th><th>Ghi Chú</th></tr></thead>
+          <tbody id="muon-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HỒ SƠ -->
+    <div id="page-profile" class="page">
+      <div class="profile-card">
+        <div class="profile-avatar" id="pf-av">?</div>
+        <div class="profile-name" id="pf-name">—</div>
+        <div class="profile-role">🎫 Hội Viên Thư Viện</div>
+        <div class="profile-fields" id="pf-fields"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL MƯỢN -->
+<div class="overlay" id="m-muon">
+  <div class="modal">
+    <div class="mhead">
+      <div class="micon">📋</div>
+      <div><div class="mtitle">Đăng Ký Mượn Sách</div><div class="msub" id="m-book-name">Tên sách</div></div>
+    </div>
+    <input type="hidden" id="m-id_sach">
+    <div class="frow">
+      <div class="fg" style="grid-column:span 2"><label>Họ & Tên</label><input id="m-hoten" class="ro" readonly></div>
+      <div class="fg"><label>Số Điện Thoại</label><input id="m-sdt" class="ro" readonly></div>
+      <div class="fg"><label>Email</label><input id="m-email" class="ro" readonly></div>
+      <div class="fg"><label>Ngày Mượn</label><input id="m-ngay_muon" type="date"></div>
+      <div class="fg"><label>Hạn Trả (mặc định 14 ngày)</label><input id="m-han_tra" type="date"></div>
+    </div>
+    <div class="fg"><label>Ghi Chú</label><input id="m-ghi_chu" placeholder="Ghi chú nếu có..."></div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="cm()">Hủy</button>
+      <button class="btn btn-gold" onclick="submitMuon()">📋 Xác Nhận Mượn</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+const API = '/api';
+let user = null;
+let allSach = [];
+let allMuon = [];
+let curFilter = 'Tất cả';
+
+// Kiểm tra đăng nhập
+const stored = sessionStorage.getItem('user');
+if (!stored) { window.location.href = '/'; }
+else {
+  user = JSON.parse(stored);
+  if (user.vai_tro !== 'hoivien') window.location.href = '/nhanvien';
+  initUser();
+  loadAll();
+}
+
+function initUser() {
+  const ini = n => n ? n.trim().split(' ').slice(-2).map(w=>w[0]).join('').toUpperCase() : '?';
+  document.getElementById('uc-name').textContent = user.ho_ten;
+  document.getElementById('pf-av').textContent = ini(user.ho_ten);
+  document.getElementById('pf-name').textContent = user.ho_ten;
+
+  // Kiểm tra hạn thẻ
+  if (user.ngay_het_han) {
+    const exp = new Date(user.ngay_het_han);
+    const ok = exp >= new Date();
+    document.getElementById('uc-exp').innerHTML = `<span class="${ok?'exp-ok':'exp-no'}">${ok?'✓ Còn hạn':'✗ Hết hạn'} · ${exp.toLocaleDateString('vi-VN')}</span>`;
+  }
+
+  // Profile fields
+  document.getElementById('pf-fields').innerHTML = [
+    ['Tên đăng nhập', user.ten_dangnhap],
+    ['Email', user.email || '—'],
+    ['Số điện thoại', user.so_dien_thoai || '—'],
+    ['Ngày tạo thẻ', user.ngay_tao_the ? new Date(user.ngay_tao_the).toLocaleDateString('vi-VN') : '—'],
+    ['Hết hạn', user.ngay_het_han ? new Date(user.ngay_het_han).toLocaleDateString('vi-VN') : '—'],
+    ['Trạng thái', '🟢 Đang hoạt động'],
+  ].map(([l,v]) => `<div class="pf"><div class="pf-label">${l}</div><div class="pf-value">${v}</div></div>`).join('');
+}
+
+async function loadAll() {
+  const [rs, rm] = await Promise.all([fetch(`${API}/sach`), fetch(`${API}/themuonsach`)]);
+  const [js, jm] = await Promise.all([rs.json(), rm.json()]);
+  allSach = js.data || [];
+  allMuon = (jm.data || []).filter(m => m.id_hoivien == user.id_hoivien);
+
+  // Stats
+  document.getElementById('st-sach').textContent = allSach.length;
+  document.getElementById('st-dangmuon').textContent = allMuon.filter(m => m.tm_trang_thai === 'Đang mượn').length;
+  document.getElementById('st-datra').textContent = allMuon.filter(m => m.tm_trang_thai === 'Đã trả').length;
+
+  // Filter buttons
+  const theloai = ['Tất cả', ...new Set(allSach.map(s => s.the_loai).filter(Boolean))];
+  document.getElementById('filter-row').innerHTML = theloai.map(t =>
+    `<button class="filter-btn ${t==='Tất cả'?'active':''}" onclick="setFilter('${t}',this)">${t}</button>`
+  ).join('');
+
+  renderSach(allSach);
+  renderMuon();
+}
+
+function nav(p, el) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  document.getElementById('page-' + p).classList.add('active');
+  el.classList.add('active');
+  const titles = { home:'Trang Chủ', sach:'Kho Sách', muon:'Thẻ Mượn Của Tôi', profile:'Hồ Sơ Cá Nhân' };
+  document.getElementById('tb-title').textContent = titles[p];
+}
+
+function setFilter(t, el) {
+  curFilter = t;
+  document.querySelectorAll('.filter-btn').forEach(x => x.classList.remove('active'));
+  el.classList.add('active');
+  filterSach();
+}
+
+function filterSach() {
+  const q = document.getElementById('s-search').value.toLowerCase();
+  let data = allSach;
+  if (curFilter !== 'Tất cả') data = data.filter(s => s.the_loai === curFilter);
+  if (q) data = data.filter(s => JSON.stringify(s).toLowerCase().includes(q));
+  renderSach(data);
+}
+
+const icons = ['📗','📘','📙','📕','📓','📔','📒','📃'];
+function renderSach(data) {
+  const g = document.getElementById('book-grid');
+  if (!data.length) { g.innerHTML = '<div class="empty-box"><div class="ei">📭</div><strong>Không tìm thấy sách</strong></div>'; return; }
+  g.innerHTML = data.map((s,i) => `
+    <div class="book-card">
+      <div class="bc-icon">${icons[i%icons.length]}</div>
+      <div class="bc-title">${s.ten_sach}</div>
+      <div class="bc-author">${s.ten_tac_gia||'—'} ${s.nam_xuat_ban?'· '+s.nam_xuat_ban:''}</div>
+      <div class="bc-meta">
+        ${s.the_loai?`<span class="bdg bdg-gold">${s.the_loai}</span>`:''}
+        <span class="bdg ${s.so_luong>0?'bdg-green':'bdg-red'}">${s.so_luong>0?s.so_luong+' quyển':'Hết sách'}</span>
+      </div>
+      <button class="bc-btn" ${s.so_luong<=0?'disabled':''} onclick='openMuon(${JSON.stringify(s).replace(/'/g,"&#39;")})'>
+        ${s.so_luong>0?'📋 Đăng ký mượn':'Hết sách'}
+      </button>
+    </div>`).join('');
+}
+
+function renderMuon() {
+  const fmtD = d => d ? new Date(d).toLocaleDateString('vi-VN') : '—';
+  const tbody = document.getElementById('muon-tbody');
+  if (!allMuon.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty-box"><div class="ei">📭</div><strong>Chưa có thẻ mượn nào</strong></td></tr>'; return; }
+  tbody.innerHTML = allMuon.map(m => {
+    const st = m.tm_trang_thai;
+    const sc = st==='Đã trả'?'bdg-green':st==='Quá hạn'?'bdg-red':'bdg-amber';
+    return `<tr>
+      <td><span class="bdg bdg-gray">#${m.tm_stt}</span></td>
+      <td><strong>${m.ten_sach_full||m.tm_ten_sach||'—'}</strong></td>
+      <td>${fmtD(m.tm_ngay_muon)}</td><td>${fmtD(m.tm_ngay_den_han_tra)}</td>
+      <td><span class="bdg ${sc}">${st||'—'}</span></td>
+      <td style="color:var(--text3)">${m.tm_ghi_chu||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function openMuon(s) {
+  document.getElementById('m-id_sach').value = s.id_sach;
+  document.getElementById('m-book-name').textContent = s.ten_sach;
+  document.getElementById('m-hoten').value = user.ho_ten||'';
+  document.getElementById('m-sdt').value = user.so_dien_thoai||'';
+  document.getElementById('m-email').value = user.email||'';
+  const today = new Date().toISOString().split('T')[0];
+  const ret = new Date(); ret.setDate(ret.getDate()+14);
+  document.getElementById('m-ngay_muon').value = today;
+  document.getElementById('m-han_tra').value = ret.toISOString().split('T')[0];
+  document.getElementById('m-ghi_chu').value = '';
+  document.getElementById('m-muon').classList.add('open');
+}
+function cm() { document.getElementById('m-muon').classList.remove('open') }
+
+async function submitMuon() {
+  const body = {
+    tm_ten_hoivien: user.ho_ten, id_hoivien: user.id_hoivien,
+    tm_so_dien_thoai: document.getElementById('m-sdt').value,
+    tm_email: document.getElementById('m-email').value,
+    id_sach: document.getElementById('m-id_sach').value,
+    tm_ten_sach: document.getElementById('m-book-name').textContent,
+    tm_ngay_muon: document.getElementById('m-ngay_muon').value||null,
+    tm_ngay_den_han_tra: document.getElementById('m-han_tra').value||null,
+    tm_ghi_chu: document.getElementById('m-ghi_chu').value,
+    tm_trang_thai: 'Đang mượn'
+  };
+  const r = await fetch(`${API}/themuonsach`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const j = await r.json();
+  if (j.success) { toast('Đăng ký mượn thành công!'); cm(); loadAll(); }
+  else toast(j.message, 'err');
+}
+
+function logout() { sessionStorage.removeItem('user'); window.location.href = '/'; }
+
+function toast(msg, type='ok') {
+  const t = document.createElement('div');
+  t.className = `toast t-${type}`;
+  t.innerHTML = (type==='ok'?'✓':'✗')+'  '+msg;
+  document.getElementById('toasts').appendChild(t);
+  setTimeout(() => { t.style.cssText='opacity:0;transition:.25s'; setTimeout(()=>t.remove(),260) }, 3000);
+}
+
+document.getElementById('m-muon').addEventListener('click', e => { if(e.target===document.getElementById('m-muon')) cm() });
+</script>
+</body>
+</html>

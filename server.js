@@ -6,7 +6,6 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -25,7 +24,4 @@ app.get('/admin',    (req, res) => res.sendFile(path.join(__dirname, 'public', '
 app.get('/hoivien',  (req, res) => res.sendFile(path.join(__dirname, 'public', 'hoivien.html')));
 app.get('/nhanvien', (req, res) => res.sendFile(path.join(__dirname, 'public', 'nhanvien.html')));
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
-});
+app.listen(PORT, () => console.log(`🚀 Server chạy tại port ${PORT}`));
